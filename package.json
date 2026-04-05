@@ -9,9 +9,12 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@sparticuz/chromium": "^143.0.4",
     "better-sqlite3": "^12.8.0",
+    "hwpilot": "github:devxoul/hwpilot",
     "next": "16.2.2",
     "puppeteer": "^24.40.0",
+    "puppeteer-core": "^24.40.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },

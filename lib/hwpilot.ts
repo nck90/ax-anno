@@ -5,21 +5,20 @@ import path from 'node:path';
 
 const execFileAsync = promisify(execFile);
 
-const HWPILOT_DIR = path.resolve(process.cwd(), '../hwpilot');
-const HWPILOT_CLI = path.join(HWPILOT_DIR, 'src/cli.ts');
+// Use bundled vendor hwpilot (works both locally and on Vercel)
+const HWPILOT_CLI = path.join(process.cwd(), 'vendor', 'hwpilot', 'dist', 'src', 'cli.js');
 
 async function runHwpilot(args: string[]): Promise<string> {
-  // Resolve only file paths (containing / or \) to absolute before changing cwd
+  // Resolve only file paths (containing / or \) to absolute
   const resolvedArgs = args.map((arg, i) => {
     if (i > 0 && !arg.startsWith('-') && !arg.startsWith('{') && (arg.includes('/') || arg.includes('\\'))) {
       return path.resolve(arg);
     }
     return arg;
   });
-  const { stdout } = await execFileAsync('npx', ['tsx', HWPILOT_CLI, ...resolvedArgs], {
+  const { stdout } = await execFileAsync('node', [HWPILOT_CLI, ...resolvedArgs], {
     timeout: 30000,
     maxBuffer: 10 * 1024 * 1024,
-    cwd: HWPILOT_DIR,
     env: { ...process.env, HWPILOT_NO_DAEMON: '1' },
   });
   return stdout;
@@ -70,7 +69,6 @@ export async function findText(filePath: string, query: string): Promise<Array<{
 }
 
 export async function editText(filePath: string, ref: string, newText: string): Promise<void> {
-  // 테이블 셀 참조 (s0.t1.r2.c3 형태)는 'table edit' 명령 사용
   const isTableCellRef = /\.t\d+\.r\d+\.c\d+/.test(ref);
   if (isTableCellRef) {
     await runHwpilot(['table', 'edit', filePath, ref, newText]);
@@ -98,22 +96,15 @@ export interface HwpEditResult {
   skipped: HwpEditIssue[];
 }
 
-/**
- * 원본 HWP를 복사한 뒤 cellEditMap의 모든 셀 텍스트를 교체
- * @returns 편집된 HWP 파일 경로
- */
 export async function createEditedHwp(
   srcPath: string,
   destPath: string,
   cellEdits: Record<string, string>
 ): Promise<HwpEditResult> {
-  // 1. 원본 복사
   await copyFile(srcPath, destPath);
 
-  // 2. 실제 문서에 존재하는 셀 ref만 편집 대상으로 사용
   const existingRefs = await getExistingCellRefs(destPath);
 
-  // 3. 각 셀 텍스트 교체
   const refs = Object.keys(cellEdits);
   let successCount = 0;
   let failCount = 0;
@@ -129,7 +120,6 @@ export async function createEditedHwp(
       skippedCount++;
       const reason = 'ref not found in copied document';
       skipped.push({ ref, reason });
-      console.warn(`Cell edit skipped [${ref}]: ${reason}`);
       continue;
     }
 
@@ -140,12 +130,9 @@ export async function createEditedHwp(
       failCount++;
       const reason = err instanceof Error ? err.message : String(err);
       failures.push({ ref, reason });
-      // 개별 셀 편집 실패는 무시하고 계속 진행
-      console.warn(`Cell edit failed [${ref}]: ${reason}`);
     }
   }
 
-  console.log(`HWP edit complete: ${successCount} success, ${failCount} failed, ${skippedCount} skipped out of ${refs.length}`);
   return {
     filePath: destPath,
     totalCount: refs.length,

@@ -1,0 +1,1 @@
+{"version":3,"file":"validator.d.ts","sourceRoot":"","sources":["../../../../src/formats/hwp/validator.ts"],"names":[],"mappings":"AAEA,OAAO,EAAiC,iBAAiB,EAAE,KAAK,cAAc,EAAE,KAAK,WAAW,EAAE,KAAK,WAAW,EAAE,MAAM,6BAA6B,CAAA;AAEvJ,YAAY,EAAE,cAAc,EAAE,WAAW,EAAE,WAAW,EAAE,CAAA;AACxD,OAAO,EAAE,iBAAiB,EAAE,CAAA;AAE5B,wBAAsB,WAAW,CAAC,QAAQ,EAAE,MAAM,GAAG,OAAO,CAAC,cAAc,CAAC,CAK3E"}

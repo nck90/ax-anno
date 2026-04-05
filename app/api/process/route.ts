@@ -7,9 +7,9 @@ import { polishWithAI } from '@/lib/ai-editor';
 import { extractOriginalData, verifyEdited } from '@/lib/verifier';
 import { createRecord, updateRecordAfterProcess } from '@/lib/db';
 
-const OUTPUT_DIR = path.join(process.cwd(), 'outputs');
+const OUTPUT_DIR = process.env.VERCEL ? '/tmp/outputs' : path.join(process.cwd(), 'outputs');
 
-const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
+const UPLOAD_DIR = process.env.VERCEL ? '/tmp/uploads' : path.join(process.cwd(), 'uploads');
 
 export async function POST(request: NextRequest) {
   try {

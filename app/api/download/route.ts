@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
 import path from 'path';
 
-const OUTPUT_DIR = path.join(process.cwd(), 'outputs');
+const OUTPUT_DIR = process.env.VERCEL ? '/tmp/outputs' : path.join(process.cwd(), 'outputs');
 
 export async function GET(request: NextRequest) {
   const filename = request.nextUrl.searchParams.get('file');

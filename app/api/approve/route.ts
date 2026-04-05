@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile, writeFile, unlink, stat } from 'fs/promises';
+import { readFile, writeFile, unlink, stat, mkdir } from 'fs/promises';
 import path from 'path';
 import { updateRecordAfterApprove } from '@/lib/db';
 
-const OUTPUT_DIR = path.join(process.cwd(), 'outputs');
+const OUTPUT_DIR = process.env.VERCEL ? '/tmp/outputs' : path.join(process.cwd(), 'outputs');
 
 async function removeIfExists(filePath: string): Promise<void> {
   try {
@@ -21,6 +21,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'id가 필요합니다.' }, { status: 400 });
     }
 
+    await mkdir(OUTPUT_DIR, { recursive: true });
+
     const jsonPath = path.join(OUTPUT_DIR, `${id}-edited.json`);
     if (editedData) {
       await writeFile(jsonPath, JSON.stringify(editedData, null, 2), 'utf-8');
@@ -37,16 +39,29 @@ export async function POST(request: NextRequest) {
     await removeIfExists(htmlPath);
     await writeFile(htmlPath, html, 'utf-8');
 
-    // 2. Puppeteer로 PDF 생성
+    // 2. PDF 생성 (puppeteer-core + @sparticuz/chromium for Vercel)
     const pdfPath = path.join(OUTPUT_DIR, `${id}-final.pdf`);
     await removeIfExists(pdfPath);
 
     try {
-      const puppeteer = await import('puppeteer');
-      const browser = await puppeteer.default.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      });
+      let browser;
+      if (process.env.VERCEL) {
+        const chromium = (await import('@sparticuz/chromium')).default;
+        const puppeteer = await import('puppeteer-core');
+        browser = await puppeteer.default.launch({
+          args: chromium.args,
+          defaultViewport: { width: 1280, height: 720 },
+          executablePath: await chromium.executablePath(),
+          headless: true,
+        });
+      } else {
+        const puppeteer = await import('puppeteer');
+        browser = await puppeteer.default.launch({
+          headless: true,
+          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        });
+      }
+
       const page = await browser.newPage();
       await page.setContent(html, { waitUntil: 'networkidle0', timeout: 30000 });
       await page.pdf({

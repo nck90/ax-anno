@@ -45,6 +45,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('업로드 오류:', error);
-    return NextResponse.json({ error: '파일 업로드 실패' }, { status: 500 });
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: `업로드 실패: ${message}` }, { status: 500 });
   }
 }

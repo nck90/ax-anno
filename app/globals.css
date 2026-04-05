@@ -1,26 +1,189 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Upload flow surfaces */
+  --background: #F5F5F3;
+  --foreground: #111827;
+  --surface: #FFFFFF;
+  --surface-subtle: #F0EFED;
+  --border: #E2E0DC;
+  --border-strong: #C8C5BF;
+
+  /* Workspace chrome (dark) */
+  --ws-bg: #1A1D23;
+  --ws-surface: #21252C;
+  --ws-surface-raised: #272B34;
+  --ws-border: #2E3340;
+  --ws-text: #CDD0D8;
+  --ws-text-muted: #6B7280;
+
+  /* Document paper */
+  --doc-bg: #FAFAF8;
+  --doc-original-tint: #F7F5F0;
+
+  /* Brand */
+  --primary: #2563EB;
+  --primary-hover: #1D4ED8;
+  --primary-light: #EFF6FF;
+
+  /* Semantic */
+  --success: #059669;
+  --success-light: #ECFDF5;
+  --warning: #D97706;
+  --warning-light: #FFFBEB;
+  --error: #DC2626;
+  --error-light: #FEF2F2;
+  --muted: #6B7280;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Pretendard Variable', 'Pretendard', 'Apple SD Gothic Neo', system-ui, -apple-system, sans-serif;
+  font-feature-settings: 'kern' 1, 'liga' 1;
+  letter-spacing: -0.01em;
+}
+
+/* ─── Animations ─────────────────────────────────────────── */
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes progress-bar {
+  0% { width: 0%; }
+  20% { width: 25%; }
+  50% { width: 55%; }
+  80% { width: 80%; }
+  95% { width: 92%; }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.4s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-progress {
+  animation: progress-bar 45s ease-out forwards;
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ─── Global Scrollbar ───────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F3F4F6;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+/* ─── Workspace (dark chrome) ────────────────────────────── */
+
+.workspace-root {
+  background: var(--ws-bg);
+}
+
+.workspace-paper {
+  background: var(--doc-bg);
+  border-radius: 4px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+.workspace-panel-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ws-border) transparent;
+}
+
+.workspace-panel-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.workspace-panel-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.workspace-panel-scroll::-webkit-scrollbar-thumb {
+  background: var(--ws-border);
+  border-radius: 3px;
+}
+
+.workspace-panel-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--ws-text-muted);
+}
+
+/* ─── Editable field interaction ─────────────────────────── */
+
+.editable-hover {
+  cursor: text;
+  border-radius: 3px;
+  padding: 1px 3px;
+  margin: -1px -3px;
+  transition: background 0.12s ease, box-shadow 0.12s ease;
+}
+
+.editable-hover:hover {
+  background: rgba(37, 99, 235, 0.06);
+  box-shadow: 0 0 0 1.5px rgba(37, 99, 235, 0.35);
 }
